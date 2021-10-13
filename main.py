@@ -8,6 +8,9 @@ import os
 
 def main():
     imgs = tumblr.get_image_from_profile("sweetoothgirl", n = 1)
+    if not os.path.exists("output"):
+        os.mkdir("output")
+    
     for img in imgs:
         watermark_name = "./automatic_watermarker/Trollface.png"
         energy = automatic_watermarker.forward_energy(img)
