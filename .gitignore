@@ -1,4 +1,7 @@
 __pycache__
 *.jpg
 *.png
+!/automatic_watermarker/Trollface.png
+/bin
+/lib
 output.html
