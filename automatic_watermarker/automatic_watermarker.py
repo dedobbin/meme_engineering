@@ -47,7 +47,7 @@ def forward_energy(im):
 #find the darkest spot in the image
 def findDark(im):
     imBlur = cv2.blur(im,(99,99),cv2.BORDER_DEFAULT)
-    cv2.imwrite("Blurred.jpg", imBlur)
+    #cv2.imwrite("Blurred.jpg", imBlur)
     (minVal, maxVal, minLoc, maxLoc) = cv2.minMaxLoc(imBlur)
 
     return minLoc
@@ -122,7 +122,7 @@ def main():
     assert im is not None
 
     energy = forward_energy(im)
-    cv2.imwrite("Features.jpg", energy)
+    #cv2.imwrite("Features.jpg", energy)
 
     zone = findDark(energy)
 
