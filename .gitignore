@@ -5,4 +5,5 @@ __pycache__
 /bin
 /lib
 output.html
+databaseKey.json
 geckodriver.log
