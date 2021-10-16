@@ -7,7 +7,7 @@ import os
 
 class tumblr:
     @staticmethod
-    def get_image_from_profile(profile:str, max: int = 0):
+    def get_images_from_profile(profile:str, max: int = 0):
         if not os.environ.get("REAL_TUMBLR", "false").lower() == "true":
             logging.warning("Mocking images from Instagram - put `REAL_TUMBLR=true` in .env for real requests")
             return [generate_img(), generate_img(), generate_img()]
