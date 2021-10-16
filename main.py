@@ -2,17 +2,14 @@ from tumblr import tumblr
 from facebook import facebook
 from automatic_watermarker import automatic_watermarker
 import cv2
-import numpy as np
 from random import choice
 from string import ascii_uppercase
 import os
 from common import get_web_driver,sanity_check_driver_web_driver
-import pathlib
-from glob import glob as find_file_names
-from hash_tagger import get_db_reference, hash_tag_image, tag_and_upload_image_hash
+from hash_tagger import tag_image
+from db import get_db_reference, store
 from dotenv import load_dotenv
 import logging
-
 
 def watermark_and_store_images_from(source, db=None, output_path=None):
     if not db:
@@ -23,14 +20,15 @@ def watermark_and_store_images_from(source, db=None, output_path=None):
         energy = automatic_watermarker.forward_energy(img)
         #cv2.imwrite("Features.jpg", energy)
         zone = automatic_watermarker.findDark(energy)
-        finalImage = automatic_watermarker.addWatermark(zone, img, source["watermark"])
-        
+        watermarked_image = automatic_watermarker.addWatermark(zone, img, source["watermark"])
+        tagged_image = tag_image(watermarked_image)
+
         if db:
-            finalImage = tag_and_upload_image_hash(db, finalImage, "{Ayyy}")
+            store(db, tagged_image, "{Ayyy}")
 
         if output_path:
             total_output_path = "%s/%s/%s.png" % (str(os.getcwd()), output_path, ''.join(choice(ascii_uppercase) for i in range(12)))
-            cv2.imwrite(total_output_path, finalImage)
+            cv2.imwrite(total_output_path, tagged_image)
 
 def get_images_from(source):
     return source["callback"](*source["params"])
