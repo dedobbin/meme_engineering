@@ -5,9 +5,14 @@ from hashlib import sha256
 import os
 from automatic_watermarker import automatic_watermarker
 from cv2 import putText, FONT_HERSHEY_DUPLEX
+import logging
 
 
 def tag_and_upload_image_hash(db_ref, image, description):
+    if not db_ref:
+        logging.warning('No database connection, skipping tag_and_upload_image_hash')
+        return image
+    
     img_hash = str(sha256(image).hexdigest())[:16]
     tagged_img = hash_tag_image(image, img_hash)
     db_ref.child("hash_table").child(img_hash).set({"hash": img_hash, "description": description})
@@ -52,12 +57,11 @@ def hash_tag_image(image, hash):
     putText(image, hash[8:], (tag_x, tag_y+font_h), FONT_HERSHEY_DUPLEX, font_size, (255,255,255), thickness)
     return image
 
-
-
 def get_db_reference():
-
     key = os.path.isfile('databaseKey.json') 
-    assert key is not None
+    if not key:
+        logging.warning('No database key found, not attempting to connect')
+        return None
 
     cred = credentials.Certificate('databaseKey.json')
     #this is my db, we should get a shared one in the future

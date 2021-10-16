@@ -33,4 +33,5 @@ def to_file(input: str, output_file_path: str = "output.html"):
     with open(output_file_path, "w") as f:
         f.write(input.text)
 
-        
+def generate_img():
+    return np.random.randint(255, size=(900,800,3),dtype=np.uint8)
