@@ -2,7 +2,7 @@ import cv2
 from hashlib import sha256
 from automatic_watermarker import automatic_watermarker
 from cv2 import putText, FONT_HERSHEY_DUPLEX
-
+import logging
 
 def tag_image(image):
     img_hash = str(sha256(image).hexdigest())[:16]
@@ -13,7 +13,7 @@ def hash_tag_image(image, hash):
     feature_map = automatic_watermarker.forward_energy(image)
     tag_coord = automatic_watermarker.findDark(feature_map)
     scale = 1
-    print("adding hash: " + hash)
+    logging.info("adding hash: " + hash)
     font_size = min(image.shape[0], image.shape[1])/(1000/scale)
     thickness = 1
 
