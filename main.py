@@ -31,7 +31,7 @@ def watermark_and_store_images_from(source, db=None, output_path=None):
             cv2.imwrite(total_output_path, tagged_image)
 
 def get_images_from(source):
-    return source["callback"](*source["params"])
+    return source["callback"](**source["params"])
 
 def water_mark_path(name: str):
     return "./automatic_watermarker/watermarks/%s.png" % name
