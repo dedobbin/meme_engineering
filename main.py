@@ -21,10 +21,10 @@ def watermark_and_store_images_from(source, db=None, output_path=None):
         #cv2.imwrite("Features.jpg", energy)
         zone = automatic_watermarker.findDark(energy)
         watermarked_image = automatic_watermarker.addWatermark(zone, img, source["watermark"])
-        tagged_image = tag_image(watermarked_image)
+        tagged_image, img_hash = tag_image(watermarked_image)
 
         if db:
-            store(db, tagged_image, "{Ayyy}")
+            store(db, img_hash, "{Ayyy}")
 
         if output_path:
             total_output_path = "%s/%s/%s.png" % (str(os.getcwd()), output_path, ''.join(choice(ascii_uppercase) for i in range(12)))

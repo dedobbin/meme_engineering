@@ -7,7 +7,7 @@ import logging
 def tag_image(image):
     img_hash = str(sha256(image).hexdigest())[:16]
     tagged_img = hash_tag_image(image, img_hash)
-    return tagged_img
+    return tagged_img, img_hash
 
 def hash_tag_image(image, hash):
     feature_map = automatic_watermarker.forward_energy(image)

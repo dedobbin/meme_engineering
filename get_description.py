@@ -1,4 +1,4 @@
-from hash_tagger import get_db_reference
+from db import get_db_reference
 import argparse
 
 parser = argparse.ArgumentParser(description='Hash value.')

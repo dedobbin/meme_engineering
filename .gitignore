@@ -6,3 +6,4 @@ output.html
 databaseKey.json
 geckodriver.log
 .env
+automatic_watermarker/watermarks

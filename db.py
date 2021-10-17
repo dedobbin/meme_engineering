@@ -3,7 +3,7 @@ from firebase_admin import credentials, db
 import firebase_admin
 import os
 
-def store(db_ref, img_hash, description):    
+def store(db_ref, img_hash, description):
     db_ref.child("hash_table").child(img_hash).set({"hash": img_hash, "description": description})
 
 def get_db_reference():
