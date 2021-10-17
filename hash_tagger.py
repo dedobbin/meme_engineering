@@ -23,21 +23,20 @@ def hash_tag_image(image, hash):
 
     tag_y, tag_x = tag_coord
 
-    #this manages oob, it can be really fucky, i hate python tuples
-    #also there are probably much more elegant ways to handle this
-    while tag_y < 0 or tag_y - (2* font_h) < 0 or tag_x < 0 or tag_x > img_w - font_w:
+    #this manages oob
+    #bottom
+    if(tag_y > img_h-font_h):
+        tag_y = img_h-font_h -1
 
-        if(tag_y < 0):
-            tag_y = 0
-        
-        if(tag_x < 0):
-            tag_x = 0
+    #left can't go below zero
 
-        if(tag_y - (2* font_h) < 0):
-            tag_y = 0 + (2 * font_h)
+    #top
+    if(tag_y < font_h):
+        tag_y = 0 + (font_h - 1)
 
-        if(tag_x > img_w - font_w):
-            tag_x = img_w - font_w
+    #right
+    if(tag_x > img_w - font_w):
+        tag_x = img_w - font_w
             
 
 
