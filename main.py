@@ -10,17 +10,21 @@ from hash_tagger import tag_image
 from db import get_db_reference, store
 from dotenv import load_dotenv
 import logging
+import json
 
-def watermark_and_store_images_from(source, db=None, output_path=None):
+def get_sources(file: str ="./sources.json"):
+    with open(file) as json_file:
+        return json.load(json_file)
+    
+def mark_and_store_images(imgs, watermark_path, db=None, output_path=None):
     if not db:
         logging.warning("Won't store images to DB")
-    
-    imgs = get_images_from(source)
+
     for img in imgs:
         energy = automatic_watermarker.forward_energy(img)
         #cv2.imwrite("Features.jpg", energy)
         zone = automatic_watermarker.findDark(energy)
-        watermarked_image = automatic_watermarker.addWatermark(zone, img, source["watermark"])
+        watermarked_image = automatic_watermarker.addWatermark(zone, img, watermark_path)
         tagged_image, img_hash = tag_image(watermarked_image)
 
         if db:
@@ -30,34 +34,39 @@ def watermark_and_store_images_from(source, db=None, output_path=None):
             total_output_path = "%s/%s/%s.png" % (str(os.getcwd()), output_path, ''.join(choice(ascii_uppercase) for i in range(12)))
             cv2.imwrite(total_output_path, tagged_image)
 
-def get_images_from(source):
-    return source["callback"](**source["params"])
-
-def water_mark_path(name: str):
-    return "./automatic_watermarker/watermarks/%s.png" % name
+def get_watermark_path(name: str):
+    path = "./automatic_watermarker/watermarks/%s.png" % name
+    if not os.path.isfile(path):
+        return None
+    return path
 
 def main(): 
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
     load_dotenv() 
     
     driver = get_web_driver(True)
-
-    sources = [
-        {
-            "callback": facebook.get_images_from_profile,
-            "params": {"profile":"memes", "driver":driver, "max_n":2},
-            "watermark": water_mark_path("Trollface"),
-        }, 
-        {
-            "callback": tumblr.get_images_from_profile,
-            "params": {"profile":"sweetoothgirl", "max_n": 2},
-            "watermark": water_mark_path("Trollface"),
-        }, 
-    ]
-    
     db = get_db_reference()
-    for source in sources:
-        watermark_and_store_images_from(source=source, db=db, output_path="watermarked_images")
+
+    for source in get_sources():
+        if not "url" in source or not "watermark" in source:
+            logging.error("Entry from sources file does not contain URL and watermark")
+            continue
+        
+        watermark_path = get_watermark_path(source["watermark"])
+        if not watermark_path:
+            logging.error("Cannot find watermark for %s: %s" % (source["url"], source["watermark"]))
+            continue
+
+        imgs = []
+        if "facebook" in source["url"]:
+            imgs = facebook.get_images_from_profile(url=source["url"], driver=driver, max_n=5)
+        elif "tumblr" in source["url"]:
+            imgs = tumblr.get_images_from_profile(url=source["url"], max_n=5)
+        else:
+            logging.error("Unknown website, %s" % source["url"])
+            continue
+
+        mark_and_store_images(imgs, watermark_path, db=db, output_path="watermarked_images")
 
 if __name__ == "__main__":
     main()
