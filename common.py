@@ -33,5 +33,9 @@ def to_file(input: str, output_file_path: str = "output.html"):
     with open(output_file_path, "w") as f:
         f.write(input.text)
 
-def generate_img():
-    return np.random.randint(255, size=(900,800,3),dtype=np.uint8)
+def generate_imgs(n):
+    # [val] * n won't work because all n items are pointing to same memory..
+    res = []
+    for i in range(n):
+        res.append(np.random.randint(255, size=(900,800,3),dtype=np.uint8))
+    return res

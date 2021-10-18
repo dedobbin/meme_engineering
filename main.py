@@ -45,12 +45,12 @@ def main():
     sources = [
         {
             "callback": facebook.get_images_from_profile,
-            "params": {"profile":"memes", "driver":driver},
+            "params": {"profile":"memes", "driver":driver, "max_n":2},
             "watermark": water_mark_path("Trollface"),
         }, 
         {
             "callback": tumblr.get_images_from_profile,
-            "params": {"profile":"sweetoothgirl"},
+            "params": {"profile":"sweetoothgirl", "max_n": 2},
             "watermark": water_mark_path("Trollface"),
         }, 
     ]
