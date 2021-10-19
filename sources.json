@@ -6,6 +6,12 @@
     {
         "url" : "https://sweetoothgirl.tumblr.com/",
         "watermark" : "Trollface"
+    },
+    {
+        "url": "https://www.facebook.com/dudexyz/",
+        "watermarks": [
+            "emoji1",
+            "Trollface"
+        ]
     }
-
 ]

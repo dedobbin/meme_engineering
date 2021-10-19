@@ -13,10 +13,16 @@ import logging
 import json
 
 def get_sources(file: str ="./sources.json"):
-    with open(file) as json_file:
-        return json.load(json_file)
     
-def mark_and_store_images(imgs, watermark_path, db=None, output_path=None):
+    def parse_entry(entry):
+        if "watermarks" in entry:
+            entry["watermark"] = entry["watermarks"]
+        return entry
+
+    with open(file) as json_file:
+        return list(map (parse_entry, json.load(json_file)))
+    
+def mark_and_store_images(imgs, watermark, db=None, output_path=None):
     if not db:
         logging.warning("Won't store images to DB")
 
@@ -24,6 +30,12 @@ def mark_and_store_images(imgs, watermark_path, db=None, output_path=None):
         energy = automatic_watermarker.forward_energy(img)
         #cv2.imwrite("Features.jpg", energy)
         zone = automatic_watermarker.findDark(energy)
+
+        watermark_path = get_watermark_path(choice(watermark) if isinstance(watermark, list) else watermark)
+        if not watermark_path:
+            logging.error("Cannot find watermark %s" % watermark_path)
+            continue
+
         watermarked_image = automatic_watermarker.addWatermark(zone, img, watermark_path)
         tagged_image, img_hash = tag_image(watermarked_image)
 
@@ -45,16 +57,12 @@ def main():
     load_dotenv() 
     
     driver = get_web_driver(True)
-    db = get_db_reference()
+    #db = get_db_reference()
+    db = None
 
     for source in get_sources():
         if not "url" in source or not "watermark" in source:
             logging.error("Entry from sources file does not contain URL and watermark")
-            continue
-        
-        watermark_path = get_watermark_path(source["watermark"])
-        if not watermark_path:
-            logging.error("Cannot find watermark for %s: %s" % (source["url"], source["watermark"]))
             continue
 
         imgs = []
@@ -66,7 +74,7 @@ def main():
             logging.error("Unknown website, %s" % source["url"])
             continue
 
-        mark_and_store_images(imgs, watermark_path, db=db, output_path="watermarked_images")
+        mark_and_store_images(imgs, source["watermark"], db=db, output_path="watermarked_images")
 
 if __name__ == "__main__":
     main()
