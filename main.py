@@ -9,6 +9,7 @@ from common import get_web_driver,sanity_check_driver_web_driver
 from hash_tagger import tag_image
 from db import get_db_reference, store
 from dotenv import load_dotenv
+from datetime import datetime
 import logging
 import json
 
@@ -22,7 +23,7 @@ def get_sources(file: str ="./sources.json"):
     with open(file) as json_file:
         return list(map (parse_entry, json.load(json_file)))
     
-def mark_and_store_images(imgs, watermark, db=None, output_path=None):
+def mark_and_store_images(imgs, watermark, source_url="unknown_source", db=None, output_path=None):
     if not db:
         logging.warning("Won't store images to DB")
 
@@ -40,7 +41,8 @@ def mark_and_store_images(imgs, watermark, db=None, output_path=None):
         tagged_image, img_hash = tag_image(watermarked_image)
 
         if db:
-            store(db, img_hash, "{Ayyy}")
+            date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            store(db, img_hash, "Grabbed from %s on " % source_url + date)
 
         if output_path:
             total_output_path = "%s/%s/%s.png" % (str(os.getcwd()), output_path, ''.join(choice(ascii_uppercase) for i in range(12)))
@@ -57,8 +59,7 @@ def main():
     load_dotenv() 
     
     driver = get_web_driver(True)
-    #db = get_db_reference()
-    db = None
+    db = get_db_reference()
 
     for source in get_sources():
         if not "url" in source or not "watermark" in source:
@@ -74,7 +75,7 @@ def main():
             logging.error("Unknown website, %s" % source["url"])
             continue
 
-        mark_and_store_images(imgs, source["watermark"], db=db, output_path="watermarked_images")
+        mark_and_store_images(imgs, source["watermark"], source["url"], db=db, output_path="watermarked_images")
 
 if __name__ == "__main__":
     main()
